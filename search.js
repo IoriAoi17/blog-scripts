@@ -1,25 +1,31 @@
-(function() {
-  console.log("✅ search.js loaded");
+(function () {
+  console.log("✅ search.js loaded (fixed)");
 
   function getQuery() {
     var params = new URLSearchParams(window.location.search);
-    return params.get("q") || "";
+    return (params.get("q") || "").trim();
   }
 
-  window.feedLoaded = function(data) {
-    var entries = data.feed.entry || [];
+  window.feedLoaded = function (data) {
+    var entries = (data.feed && data.feed.entry) || [];
     var query = getQuery().toLowerCase();
     var results = [];
+
     for (var i = 0; i < entries.length; i++) {
       var entry = entries[i];
-      var title   = entry.title["$t"].toLowerCase();
+      var title = entry.title["$t"].toLowerCase();
       var content = entry.content ? entry.content["$t"].toLowerCase() : "";
       var summary = entry.summary ? entry.summary["$t"].toLowerCase() : "";
 
-      if (title.indexOf(query) > -1 || content.indexOf(query) > -1 || summary.indexOf(query) > -1) {
+      if (
+        title.indexOf(query) > -1 ||
+        content.indexOf(query) > -1 ||
+        summary.indexOf(query) > -1
+      ) {
         results.push(entry);
       }
     }
+
     renderResults(results, query);
   };
 
@@ -28,7 +34,8 @@
     if (!container) return;
 
     if (!results.length) {
-      container.innerHTML = "<p>No results found for <strong>" + query + "</strong>.</p>";
+      container.innerHTML =
+        "<p>No results found for <strong>" + query + "</strong>.</p>";
       return;
     }
 
@@ -44,7 +51,14 @@
       }
       var title = entry.title["$t"];
       var snippet = entry.summary ? entry.summary["$t"] : "";
-      html += '<li><a href="' + link + '">' + title + "</a><p>" + snippet + "</p></li>";
+      html +=
+        '<li><a href="' +
+        link +
+        '">' +
+        title +
+        "</a><p>" +
+        snippet +
+        "</p></li>";
     }
     html += "</ul>";
     container.innerHTML = html;
@@ -52,9 +66,15 @@
 
   // auto-load feed
   if (window.location.pathname.indexOf("/search") === 0) {
-    console.log("🔎 Custom search aktif di halaman search");
-    var s = document.createElement("script");
-    s.src = "/feeds/posts/default?alt=json-in-script&callback=feedLoaded&max-results=50";
-    document.body.appendChild(s);
+    var query = getQuery();
+    if (query) {
+      console.log("🔎 Custom search aktif untuk query:", query);
+      var s = document.createElement("script");
+      s.src =
+        "/feeds/posts/default/-/" +
+        encodeURIComponent(query) +
+        "?alt=json-in-script&callback=feedLoaded&max-results=50";
+      document.body.appendChild(s);
+    }
   }
 })();

@@ -1,4 +1,6 @@
 (function() {
+  console.log("✅ search.js loaded");
+
   function getQuery() {
     var params = new URLSearchParams(window.location.search);
     return params.get("q") || "";
@@ -10,9 +12,9 @@
     var results = [];
     for (var i = 0; i < entries.length; i++) {
       var entry = entries[i];
-      var title   = entry.title.$t.toLowerCase();
-      var content = entry.content ? entry.content.$t.toLowerCase() : "";
-      var summary = entry.summary ? entry.summary.$t.toLowerCase() : "";
+      var title   = entry.title["$t"].toLowerCase();
+      var content = entry.content ? entry.content["$t"].toLowerCase() : "";
+      var summary = entry.summary ? entry.summary["$t"].toLowerCase() : "";
 
       if (title.indexOf(query) > -1 || content.indexOf(query) > -1 || summary.indexOf(query) > -1) {
         results.push(entry);
@@ -40,8 +42,8 @@
           break;
         }
       }
-      var title = entry.title.$t;
-      var snippet = entry.summary ? entry.summary.$t : "";
+      var title = entry.title["$t"];
+      var snippet = entry.summary ? entry.summary["$t"] : "";
       html += '<li><a href="' + link + '">' + title + "</a><p>" + snippet + "</p></li>";
     }
     html += "</ul>";
@@ -50,6 +52,7 @@
 
   // auto-load feed
   if (window.location.pathname.indexOf("/search") === 0) {
+    console.log("🔎 Custom search aktif di halaman search");
     var s = document.createElement("script");
     s.src = "/feeds/posts/default?alt=json-in-script&callback=feedLoaded&max-results=50";
     document.body.appendChild(s);
